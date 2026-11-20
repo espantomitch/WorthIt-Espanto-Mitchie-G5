@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{% if product %}Edit product{% else %}Add product{% endif %} · WorthIt{% endblock %}
+{% block content %}
+<section class="form-card">
+  <h1>{% if product %}Edit product{% else %}Add product{% endif %}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% include "accounts/form_fields.html" %}
+    <div class="actions">
+      <button class="button" type="submit">Save product</button>
+      {% if product %}<a href="{% url 'products:detail' product.pk %}">Cancel</a>
+      {% else %}<a href="{% url 'products:list' %}">Cancel</a>{% endif %}
+    </div>
+  </form>
+</section>
+{% endblock %}
