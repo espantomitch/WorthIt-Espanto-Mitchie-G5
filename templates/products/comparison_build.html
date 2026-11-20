@@ -2,7 +2,7 @@
 {% block title %}New comparison · WorthIt{% endblock %}
 {% block content %}
 <section class="form-card">
-  <a href="{% url 'products:comparison_list' %}">Back to saved comparisons</a>
+  <a href="{% url 'products:comparison_list' %}" class="back-link" aria-label="Back to saved comparisons">&lt;</a>
   <h1>New comparison</h1>
   {% if has_products or selection.is_bound %}
   <form method="post">

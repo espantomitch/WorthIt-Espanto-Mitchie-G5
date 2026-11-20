@@ -36,3 +36,41 @@
 }
 .comparison-table thead, .comparison-table tbody th { background: #f4edf0; }
 .comparison-table tr:last-child td, .comparison-table tr:last-child th { border-bottom: 0; }
+
+/* Signed-in navigation and profile pictures */
+.account-nav { flex-wrap: nowrap; min-width: 0; }
+.account-nav .dashboard-link { padding: 6px 12px; border-radius: 20px; }
+.account-nav .dashboard-link.is-active { background: #f4e8ed; }
+.profile-link { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.profile-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 22ch; }
+.profile-avatar {
+    flex: none;
+    display: block;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #ccc;
+}
+.profile-link[aria-current] .profile-avatar { outline: 2px solid var(--wine); outline-offset: 2px; }
+.profile-heading { display: flex; align-items: center; gap: 16px; }
+.profile-heading h1 { margin: 0; }
+.profile-logout { text-align: center; }
+@media (max-width: 650px) {
+    header:has(.account-nav) { flex-direction: row; align-items: center; gap: 10px; padding-inline: 16px; }
+    .account-nav { gap: 8px; }
+    .account-nav .dashboard-link { padding-inline: 8px; }
+    .profile-link { gap: 6px; }
+    .profile-link .profile-avatar { width: 36px; height: 36px; }
+}
+
+.back-link {
+    display: inline-grid;
+    place-items: center;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 650;
+    text-decoration: none;
+    border-radius: 8px;
+}
+.back-link:hover { background: #f4e8ed; }

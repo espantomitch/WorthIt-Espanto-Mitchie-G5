@@ -3,6 +3,11 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.functions import Lower
 
+
+def normalize_name(value):
+    return " ".join(part.capitalize() for part in value.split())
+
+
 class AccountManager(UserManager):
     def _create_user(self, username, email, password, **extra_fields):
         if not email:
@@ -29,7 +34,18 @@ class User(AbstractUser):
         # One source of truth: Django staff status controls the Admin role.
         return "Admin" if self.is_staff else "User"
 
+    def get_full_name(self):
+        return normalize_name(super().get_full_name())
+
+    def get_short_name(self):
+        return normalize_name(super().get_short_name())
+
     def save(self, *args, **kwargs):
         self.username = self.username.strip().lower()
         self.email = self.email.strip().lower()
         super().save(*args, **kwargs)
+
+
+class ProfilePicture(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    image = models.BinaryField(editable=False)
