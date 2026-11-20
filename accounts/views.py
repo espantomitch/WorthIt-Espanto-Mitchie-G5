@@ -3,12 +3,15 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.db import IntegrityError, transaction
+from django.http import HttpResponse
+from django.templatetags.static import static
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from .decorators import role_required
 from .forms import LoginForm, ProfileForm, RegistrationForm
-from .models import User
+from .models import ProfilePicture, User
 
 def home(request):
     if request.user.is_authenticated:
@@ -75,14 +78,31 @@ def profile(request):
 
 @login_required
 def profile_edit(request):
-    form = ProfileForm(request.POST if request.method == "POST" else None, instance=request.user)
+    submitted = request.method == "POST"
+    form = ProfileForm(
+        request.POST if submitted else None,
+        request.FILES if submitted else None,
+        instance=request.user,
+    )
     if request.method == "POST" and form.is_valid():
         try:
             with transaction.atomic():
-                form.save()
+                account = form.save()
+                picture = form.cleaned_data["profile_picture"]
+                if picture is not None:
+                    ProfilePicture.objects.update_or_create(user=account, defaults={"image": picture})
         except IntegrityError:
             form.add_error("email", "This email is already registered.")
         else:
             messages.success(request, "Your profile has been updated.")
             return redirect("accounts:profile")
     return render(request, "accounts/profile_edit.html", {"form": form})
+
+
+@login_required
+@never_cache
+def profile_picture(request):
+    image = ProfilePicture.objects.filter(user=request.user).values_list("image", flat=True).first()
+    if image is None:
+        return redirect(static("images/default-profile.jpg"))
+    return HttpResponse(image, content_type="image/jpeg", headers={"X-Content-Type-Options": "nosniff"})

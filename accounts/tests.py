@@ -69,9 +69,13 @@ class AccountIntegrationTests(TestCase):
         return self.client.post(reverse('accounts:register'), data)
 
     def test_registration_hashes_password_and_blocks_role_escalation(self):
-        response = self.registration(is_staff='true', is_superuser='true')
+        response = self.registration(
+            first_name='mArIa luIsa', last_name='DELA CRUZ', is_staff='true', is_superuser='true',
+        )
         self.assertRedirects(response, reverse('accounts:login'))
         user = User.objects.get(username='newmember')
+        self.assertEqual(user.first_name, 'Maria Luisa')
+        self.assertEqual(user.last_name, 'Dela Cruz')
         self.assertTrue(user.check_password(PASSWORD))
         self.assertNotEqual(user.password, PASSWORD)
         self.assertFalse(user.is_staff)
@@ -119,7 +123,9 @@ class AccountIntegrationTests(TestCase):
 
     def test_url_role_bypass_is_denied(self):
         self.client.force_login(self.member)
-        self.assertEqual(self.client.get(reverse('accounts:admin_dashboard')).status_code, 403)
+        response = self.client.get(reverse('accounts:admin_dashboard'))
+        self.assertContains(response, 'Access denied', status_code=403)
+        self.assertContains(response, 'This page belongs to another role.', status_code=403)
         self.client.force_login(self.admin)
         self.assertEqual(self.client.get(reverse('accounts:user_dashboard')).status_code, 403)
 
@@ -132,12 +138,13 @@ class AccountIntegrationTests(TestCase):
     def test_profile_update_is_owned_and_cannot_change_role(self):
         self.client.force_login(self.member)
         response = self.client.post(reverse('accounts:profile_edit'), dict(
-            first_name='Updated', last_name='Espanto', email='updated@example.com', contact_number='+639171234567',
+            first_name='UPDATED', last_name='espanto', email='updated@example.com', contact_number='+639171234567',
             id=self.admin.pk, is_staff='true', is_superuser='true'))
         self.assertRedirects(response, reverse('accounts:profile'))
         self.member.refresh_from_db()
         self.admin.refresh_from_db()
         self.assertEqual(self.member.first_name, 'Updated')
+        self.assertEqual(self.member.last_name, 'Espanto')
         self.assertFalse(self.member.is_staff)
         self.assertFalse(self.member.is_superuser)
         self.assertEqual(self.admin.email, 'admin@example.com')
@@ -145,6 +152,18 @@ class AccountIntegrationTests(TestCase):
         self.assertContains(response, 'updated@example.com')
         self.assertNotContains(response, 'admin@example.com')
         self.assertEqual(self.client.get(f'/accounts/profile/{self.admin.pk}/').status_code, 404)
+
+    def test_existing_names_display_normalized_in_dashboard_and_profile(self):
+        User.objects.filter(pk=self.member.pk).update(first_name='mARia', last_name='DELA CRUZ')
+        self.client.force_login(self.member)
+        dashboard = self.client.get(reverse('accounts:user_dashboard'))
+        self.assertContains(dashboard, 'Hello, Maria.')
+        self.assertContains(dashboard, 'Maria Dela Cruz')
+        self.assertNotContains(dashboard, 'Your account')
+        profile = self.client.get(reverse('accounts:profile'))
+        self.assertContains(profile, 'Maria Dela Cruz')
+        self.assertContains(profile, 'class="profile-logout"')
+        self.assertNotContains(profile, 'Back to dashboard')
 
     def test_profile_rejects_another_users_email(self):
         self.client.force_login(self.member)
