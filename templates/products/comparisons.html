@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Saved comparisons · WorthIt{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <h1>Saved comparisons</h1>
+  <div class="actions"><a class="button" href="{% url 'products:comparison_build' %}">New comparison</a>
+    <a href="{% url 'products:list' %}">My products</a></div>
+</div>
+{% if comparisons %}
+<div class="grid">
+  {% for comparison in comparisons %}
+  <article class="panel">
+    <h2><a href="{% url 'products:comparison_detail' comparison.pk %}">{{ comparison.title }}</a></h2>
+    <p class="muted">Saved {{ comparison.created_at|date:"M j, Y" }}</p>
+    <div class="actions">
+      <a href="{% url 'products:comparison_rename' comparison.pk %}">Rename</a>
+      <a href="{% url 'products:comparison_delete' comparison.pk %}">Delete</a>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="panel">Your saved comparisons will appear here.</p>
+{% endif %}
+{% endblock %}

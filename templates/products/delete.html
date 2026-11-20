@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Delete product · WorthIt{% endblock %}
+{% block content %}
+<section class="form-card">
+  <h1>Delete product</h1>
+  <p>Remove <strong>{{ product.name }}</strong> from your products?</p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="actions">
+      <button class="button" type="submit">Delete product</button>
+      <a href="{% url 'products:detail' product.pk %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

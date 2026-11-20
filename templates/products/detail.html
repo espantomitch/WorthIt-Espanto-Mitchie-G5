@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} · WorthIt{% endblock %}
+{% block content %}
+<a href="{% url 'products:list' %}">Back to my products</a>
+<div class="page-heading">
+  <h1>{{ product.name }}</h1>
+  <p class="lead">{{ product.category }} · {{ product.product_type }} · ₱{{ product.price|floatformat:"2g" }}</p>
+  <div class="actions">
+    <a class="button" href="{% url 'products:edit' product.pk %}">Edit product</a>
+    <a href="{% url 'products:delete' product.pk %}">Delete product</a>
+  </div>
+</div>
+<section class="panel">
+  <h2>Specifications</h2>
+  <dl>
+    {% for label, value in specifications %}<dt>{{ label }}</dt><dd>{{ value }}</dd>{% endfor %}
+  </dl>
+</section>
+{% endblock %}

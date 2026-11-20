@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}My products · WorthIt{% endblock %}
+{% block content %}
+<div class="page-heading">
+  <h1>My products</h1>
+  <div class="actions">
+    <a class="button" href="{% url 'products:add' %}">Add product</a>
+    <a href="{% url 'products:comparison_build' %}">Compare products</a>
+    <a href="{% url 'products:comparison_list' %}">Saved comparisons</a>
+  </div>
+</div>
+{% if products %}
+<div class="grid">
+  {% for product in products %}
+  <article class="panel">
+    <span class="badge">{{ product.product_type }}</span>
+    <h2><a href="{% url 'products:detail' product.pk %}">{{ product.name }}</a></h2>
+    <p>{{ product.category }} · ₱{{ product.price|floatformat:"2g" }}</p>
+    <div class="actions">
+      <a href="{% url 'products:edit' product.pk %}">Edit</a>
+      <a href="{% url 'products:delete' product.pk %}">Delete</a>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<p class="panel">Add the products you are considering to keep their prices and specifications together.</p>
+{% endif %}
+{% endblock %}

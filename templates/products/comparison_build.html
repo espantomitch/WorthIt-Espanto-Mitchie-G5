@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}New comparison · WorthIt{% endblock %}
+{% block content %}
+<section class="form-card">
+  <a href="{% url 'products:comparison_list' %}">Back to saved comparisons</a>
+  <h1>New comparison</h1>
+  {% if has_products or selection.is_bound %}
+  <form method="post">
+    {% csrf_token %}
+    <fieldset class="product-choices">
+      <legend>Choose 2 to 4 products of the same type.</legend>
+      {{ selection.products.errors }}
+      {{ selection.products }}
+    </fieldset>
+    <div class="actions">
+      <button class="button" type="submit">Compare products</button>
+      <a href="{% url 'products:add' %}">Add a product</a>
+    </div>
+  </form>
+  {% else %}
+  <p>Add at least two products of the same type to start a comparison.</p>
+  <a class="button" href="{% url 'products:add' %}">Add product</a>
+  {% endif %}
+</section>
+{% endblock %}
