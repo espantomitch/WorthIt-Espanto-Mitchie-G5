@@ -10,7 +10,15 @@
   <section class="panel">
     <h2>Your products</h2>
     <p>Keep track of the products you are considering and their prices and specifications.</p>
-    <a class="button" href="{% url 'products:list' %}">My products</a>
+    <div class="actions"><a class="button" href="{% url 'products:list' %}">My products</a></div>
+  </section>
+  <section class="panel">
+    <h2>Your comparisons</h2>
+    <p>Compare products of the same type and return to the choices you saved.</p>
+    <div class="actions">
+      <a class="button" href="{% url 'products:comparison_build' %}">Compare products</a>
+      <a href="{% url 'products:comparison_list' %}">Saved comparisons</a>
+    </div>
   </section>
   <section class="panel">
     <h2>Your account</h2>

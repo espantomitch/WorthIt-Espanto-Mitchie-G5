@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{% if comparison %}{{ comparison.title }}{% else %}Compare products{% endif %} · WorthIt{% endblock %}
+{% block content %}
+<a href="{% url 'products:comparison_list' %}">Back to saved comparisons</a>
+<div class="page-heading">
+  <h1>{% if comparison %}{{ comparison.title }}{% else %}Compare products{% endif %}</h1>
+  {% if comparison %}
+  <div class="actions">
+    <a href="{% url 'products:comparison_rename' comparison.pk %}">Rename</a>
+    <a href="{% url 'products:comparison_delete' comparison.pk %}">Delete</a>
+  </div>
+  {% endif %}
+</div>
+<div class="comparison-scroll" tabindex="0" role="region" aria-label="Side-by-side product comparison">
+  <table class="comparison-table">
+    <thead><tr><th scope="col">Product</th>{% for item in items %}<th scope="col">{{ item.name }}</th>{% endfor %}</tr></thead>
+    <tbody>
+      <tr><th scope="row">Price</th>{% for item in items %}<td>₱{{ item.price|floatformat:"2g" }}</td>{% endfor %}</tr>
+      <tr><th scope="row">Category</th>{% for item in items %}<td>{{ item.category }}</td>{% endfor %}</tr>
+      <tr><th scope="row">Type</th>{% for item in items %}<td>{{ item.product_type }}</td>{% endfor %}</tr>
+      {% for label, values in rows %}
+      <tr><th scope="row">{{ label }}</th>{% for value in values %}<td>{{ value|default_if_none:"—" }}</td>{% endfor %}</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if form %}
+<section class="form-card">
+  <h2>Save this comparison</h2>
+  <form method="post">
+    {% csrf_token %}
+    {% for item in items %}<input type="hidden" name="products" value="{{ item.pk }}">{% endfor %}
+    {% include "accounts/form_fields.html" %}
+    <div class="actions">
+      <button class="button" type="submit" name="action" value="save">Save comparison</button>
+      <a href="{% url 'products:comparison_build' %}">Choose different products</a>
+    </div>
+  </form>
+</section>
+{% endif %}
+{% endblock %}
