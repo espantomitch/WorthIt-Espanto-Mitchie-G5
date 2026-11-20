@@ -10,3 +10,29 @@
     resize: vertical;
 }
 .field textarea:focus { outline: 2px solid var(--wine); outline-offset: 2px; }
+
+.product-choices {
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 10px 15px 15px;
+}
+.product-choices legend { font-weight: 650; padding: 0 5px; }
+.product-choices label { display: block; padding: 7px 0; }
+.product-choices input { accent-color: var(--wine); margin-right: 8px; }
+.comparison-scroll {
+    overflow-x: auto;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+.comparison-scroll:focus-visible { outline: 3px solid #b47c26; outline-offset: 4px; }
+.comparison-table { width: 100%; border-collapse: collapse; text-align: left; }
+.comparison-table th, .comparison-table td {
+    border-bottom: 1px solid var(--line);
+    padding: 12px 16px;
+    vertical-align: top;
+    min-width: 130px;
+    overflow-wrap: anywhere;
+}
+.comparison-table thead, .comparison-table tbody th { background: #f4edf0; }
+.comparison-table tr:last-child td, .comparison-table tr:last-child th { border-bottom: 0; }

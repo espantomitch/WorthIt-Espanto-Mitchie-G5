@@ -3,7 +3,11 @@
 {% block content %}
 <div class="page-heading">
   <h1>My products</h1>
-  <div class="actions"><a class="button" href="{% url 'products:add' %}">Add product</a></div>
+  <div class="actions">
+    <a class="button" href="{% url 'products:add' %}">Add product</a>
+    <a href="{% url 'products:comparison_build' %}">Compare products</a>
+    <a href="{% url 'products:comparison_list' %}">Saved comparisons</a>
+  </div>
 </div>
 {% if products %}
 <div class="grid">

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{% if form %}Rename comparison{% else %}Delete comparison{% endif %} · WorthIt{% endblock %}
+{% block content %}
+<section class="form-card">
+  <h1>{% if form %}Rename comparison{% else %}Delete comparison{% endif %}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {% if form %}{% include "accounts/form_fields.html" %}
+    {% else %}<p>Delete <strong>{{ comparison.title }}</strong> from your saved comparisons?</p>{% endif %}
+    <div class="actions">
+      <button class="button" type="submit">{% if form %}Save name{% else %}Delete comparison{% endif %}</button>
+      <a href="{% url 'products:comparison_detail' comparison.pk %}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
