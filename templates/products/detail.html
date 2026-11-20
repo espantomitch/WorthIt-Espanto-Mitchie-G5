@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ product.name }} · WorthIt{% endblock %}
 {% block content %}
-<a href="{% url 'products:list' %}">Back to my products</a>
+<a href="{% url 'products:list' %}" class="back-link" aria-label="Back to my products">&lt;</a>
 <div class="page-heading">
   <h1>{{ product.name }}</h1>
   <p class="lead">{{ product.category }} · {{ product.product_type }} · ₱{{ product.price|floatformat:"2g" }}</p>

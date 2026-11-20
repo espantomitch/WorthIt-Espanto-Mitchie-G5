@@ -1,9 +1,40 @@
-{% load static %}<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}WorthIt · Regret Less{% endblock %}</title><link rel="stylesheet" href="{% static 'css/style.css' %}"></head>
-<body><header><a class="brand" href="{% url 'home' %}">WorthIt<span>Regret Less</span></a><nav aria-label="Main navigation">
-{% if user.is_authenticated %}<a href="{% url 'accounts:dashboard' %}">Dashboard</a><a href="{% url 'accounts:profile' %}">My profile</a><span class="badge">{{ user.role }}</span><form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}<button class="quiet" type="submit">Log out</button></form>
-{% else %}<a href="{% url 'accounts:login' %}">Log in</a><a class="button small" href="{% url 'accounts:register' %}">Create account</a>{% endif %}
-</nav></header><main>
-{% if messages %}<div class="messages" aria-live="polite">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}
-{% block content %}{% endblock %}</main><footer>WorthIt · Thoughtful choices start here.</footer></body></html>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}WorthIt · Regret Less{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header>
+  <a class="brand" href="{% url 'home' %}">WorthIt<span>Regret Less</span></a>
+  {% if user.is_authenticated %}
+  <nav class="account-nav" aria-label="Main navigation">
+    {% with route=request.resolver_match.view_name section=request.resolver_match.namespace %}
+    <a href="{% url 'accounts:dashboard' %}" class="dashboard-link{% if route == 'accounts:user_dashboard' or route == 'accounts:admin_dashboard' or section == 'products' %} is-active{% endif %}"{% if route == 'accounts:user_dashboard' or route == 'accounts:admin_dashboard' %} aria-current="page"{% endif %}>Dashboard</a>
+    <a href="{% url 'accounts:profile' %}" class="profile-link" aria-label="My profile"{% if route == 'accounts:profile' or route == 'accounts:profile_edit' %} aria-current="{% if route == 'accounts:profile' %}page{% else %}true{% endif %}"{% endif %}>
+      <span class="profile-name">{{ user.get_full_name|default:user.username }}</span>
+      <img class="profile-avatar" src="{% url 'accounts:profile_picture' %}" alt="" width="40" height="40">
+    </a>
+    {% endwith %}
+  </nav>
+  {% else %}
+  <nav aria-label="Main navigation">
+    <a href="{% url 'accounts:login' %}">Log in</a>
+    <a class="button small" href="{% url 'accounts:register' %}">Create account</a>
+  </nav>
+  {% endif %}
+</header>
+<main>
+  {% if messages %}
+  <div class="messages" aria-live="polite">
+    {% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}
+  </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+<footer>WorthIt · Thoughtful choices start here.</footer>
+</body>
+</html>

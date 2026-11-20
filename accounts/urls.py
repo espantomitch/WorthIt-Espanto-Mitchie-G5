@@ -10,4 +10,5 @@ urlpatterns = [
     path("dashboard/admin/", views.admin_dashboard, name="admin_dashboard"),
     path("profile/", views.profile, name="profile"),
     path("profile/edit/", views.profile_edit, name="profile_edit"),
+    path("profile/picture/", views.profile_picture, name="profile_picture"),
 ]
