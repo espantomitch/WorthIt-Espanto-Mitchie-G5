@@ -26,7 +26,7 @@ Copy-Item .env.example .env
 .\.venv\Scripts\python.exe -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
 ```
 
-Skip the copy if `.env` already exists. Add the generated secret to `DJANGO_SECRET_KEY` in your private `.env`.
+Skip the copy if `.env` already exists. Add the generated secret to `DJANGO_SECRET_KEY` in your private `.env`. Set `DJANGO_DEBUG=True` only for local HTTP development. Keep `DJANGO_DEBUG=False` when serving over HTTPS or verifying the custom 404 and 500 pages.
 
 - **Supabase PostgreSQL** — copy the database name, username, host, port, and database password from **Connect → Session pooler**. Set `DB_SSLMODE=require`. The password is the PostgreSQL database password. Django handles application authentication.
 - **Local PostgreSQL** — create a development database such as `worthit`. Set `DB_NAME=worthit`, `DB_HOST=localhost`, `DB_PORT=5432`, your local username and password, and `DB_SSLMODE=disable`.
