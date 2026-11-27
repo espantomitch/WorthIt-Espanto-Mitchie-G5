@@ -2,7 +2,7 @@
 
 **Student:** Espanto, Mitchie T.
 **Section:** G5
-**Increment:** IM2 Project Development 2
+**Increment:** IM2 Project Development 3
 
 WorthIt helps shoppers compare prices and specifications before making a purchase. It uses Django templates and PostgreSQL, including PostgreSQL hosted on Supabase.
 
@@ -44,24 +44,25 @@ Visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/). Run `createsuperuser` on
 
 ## Local test accounts
 
-Use a disposable local development database if you need the exact accounts shown in the completion report. Register `pd2_buyer` with `pd2_buyer@example.test` and `LocalPD2-Buyer-47!` on the registration page. Create the limited staff account from the local Django shell:
+Use a disposable local development database to recreate the accounts shown in the PD3 report. Register `pd3_buyer` with `pd3_buyer@example.test` and `LocalPD3-Buyer-47!` on the registration page. Create the limited staff account from the local Django shell:
 
 ```powershell
-.\.venv\Scripts\python.exe manage.py shell -c "from accounts.models import User; User.objects.create_user('pd2_staff', 'pd2_staff@example.test', 'LocalPD2-Staff-47!', is_staff=True)"
+.\.venv\Scripts\python.exe manage.py shell -c "from accounts.models import User; User.objects.create_user('pd3_staff', 'pd3_staff@example.test', 'LocalPD3-Staff-47!', is_staff=True)"
 ```
 
 These demo credentials are public and intended for a disposable local copy. The staff account can use the Admin dashboard. A separately created superuser can manage accounts in Django administration.
 
 ## Verification
 
-Run the integration suite with disposable PostgreSQL and a database role that can create a test database:
+Point the local `.env` at a disposable PostgreSQL instance. Use a role with `CREATEDB` so Django can create and remove its test database. In PowerShell, activate the virtual environment and run the full suite:
 
 ```powershell
-.\.venv\Scripts\python.exe manage.py test accounts products
-.\.venv\Scripts\python.exe manage.py makemigrations --check --dry-run
+.\.venv\Scripts\Activate.ps1
+python manage.py test
+python manage.py makemigrations --check --dry-run
 ```
 
-The suite covers Account Feature regressions, role gates, product CRUD and ownership, comparison validation, and the saved comparison lifecycle. Hosted PostgreSQL roles may restrict test-database creation.
+Use `.\.venv\Scripts\python.exe` in place of `python` if shell policy blocks activation. The suite covers registration, login and logout, role dashboards, profiles, product ownership, comparison validation, duplicate submissions, snapshot rollback, CSRF and error pages. Hosted PostgreSQL roles may restrict test-database creation.
 
 For a manual check, add two laptops, preview them side by side, save the comparison, and reopen it from the dashboard. Reopen it again after editing or deleting one source product. Verify another User cannot open the saved comparison by URL and staff accounts receive HTTP 403 on the private feature pages.
 
@@ -73,6 +74,6 @@ For a manual check, add two laptops, preview them side by side, save the compari
 | `products/` | Product CRUD, comparison builder, saved comparisons, and PostgreSQL migrations |
 | `templates/` | Server-rendered account, product, and comparison pages |
 | `static/css/style.css` | Shared responsive styling |
-| `docs/` | Project Development 2 completion report |
+| `docs/` | Project Development 2 completion and Project Development 3 hardening reports |
 
-Work on `feature/*` branches from `develop`. Merge features into `develop` through pull requests, then open a release pull request from `develop` into `main`. Keep merged feature branches.
+Create `fix/*`, `hardening/*` and `test/*` work branches from `develop`. Merge each work branch into `develop` through a pull request, then open a release pull request from `develop` into `main`. Keep merged work branches.
