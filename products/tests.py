@@ -38,17 +38,23 @@ class ProductComparisonTests(TestCase):
         return reverse(f"products:{name}", args=[pk] if pk is not None else [])
 
     def save_comparison(self):
+        selected = [self.first.pk, self.second.pk]
+        preview = self.client.post(self.url("comparison_build"), {"products": selected})
         response = self.client.post(self.url("comparison_build"), {
-            "action": "save", "title": "Laptop shortlist", "products": [self.first.pk, self.second.pk],
+            "action": "save", "title": "Laptop shortlist", "products": selected,
+            "submission_key": preview.context["form"]["submission_key"].value(),
+            "preview_signature": preview.context["form"]["preview_signature"].value(),
         })
         comparison = Comparison.objects.get(owner=self.owner)
         self.assertRedirects(response, self.url("comparison_detail", comparison.pk))
         return comparison
 
     def test_product_crud_and_validation(self):
+        add_page = self.client.get(self.url("add"))
         data = {
             "name": " Cedar ", "category": "Computers", "product_type": "Laptop",
             "price": "0.00", "specifications": "RAM 32 GB",
+            "submission_key": add_page.context["form"]["submission_key"].value(),
         }
         response = self.client.post(self.url("add"), data)
         self.assertContains(response, "greater than or equal to 0.01")

@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from accounts.decorators import role_required
 
-from .forms import ProductForm
+from .forms import ProductCreateForm, ProductForm
 
 
 @role_required(admin=False)
@@ -31,12 +31,18 @@ def product_edit(request, pk=None):
             products = products.select_for_update()
         product = get_object_or_404(products, pk=pk)
 
-    form = ProductForm(request.POST if request.method == "POST" else None, instance=product)
+    form_class = ProductCreateForm if product is None else ProductForm
+    form = form_class(request.POST if request.method == "POST" else None, instance=product)
     if request.method == "POST" and form.is_valid():
-        saved_product = form.save(commit=False)
-        saved_product.owner = request.user
-        saved_product.save()
-        messages.success(request, "Product added." if product is None else "Product updated.")
+        if product is None:
+            saved_product, created = request.user.products.get_or_create(
+                submission_id=form.cleaned_data["submission_key"],
+                defaults={field: form.cleaned_data[field] for field in form.Meta.fields},
+            )
+            messages.success(request, "Product added." if created else "This product was already added.")
+        else:
+            saved_product = form.save()
+            messages.success(request, "Product updated.")
         return redirect("products:detail", pk=saved_product.pk)
 
     return render(request, "products/form.html", {"form": form, "product": product})
