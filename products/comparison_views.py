@@ -1,10 +1,13 @@
+import json
+
 from django.contrib import messages
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.crypto import constant_time_compare, salted_hmac
 
 from accounts.decorators import role_required
 
-from .comparison_forms import ComparisonSelectionForm, ComparisonTitleForm
+from .comparison_forms import ComparisonSaveForm, ComparisonSelectionForm, ComparisonTitleForm
 from .models import ComparisonItem
 
 
@@ -19,6 +22,15 @@ def comparison_rows(products):
             values[key] = value
         specifications.append(values)
     return [(labels[key], [values.get(key) for values in specifications]) for key in sorted(labels)]
+
+
+def preview_signature(owner, products):
+    snapshot = [
+        [product.pk, product.name, product.category, product.product_type, str(product.price), product.specifications]
+        for product in products
+    ]
+    payload = json.dumps([owner.pk, snapshot], sort_keys=True)
+    return salted_hmac("products.comparison-preview", payload, algorithm="sha256").hexdigest()
 
 
 @role_required(admin=False)
@@ -45,20 +57,25 @@ def comparison_build(request):
         })
 
     selected = sorted(selection.cleaned_data["products"], key=lambda product: (product.name, product.pk))
-    title_form = ComparisonTitleForm(request.POST if saving else None)
+    signature = preview_signature(request.user, selected)
+    title_form = ComparisonSaveForm(request.POST if saving else None, initial={"preview_signature": signature})
+    if saving and title_form.is_valid() and not constant_time_compare(signature, title_form.cleaned_data["preview_signature"]):
+        title_form.add_error("preview_signature", "A product changed since the preview. Choose your products again to review the updated details.")
     if saving and title_form.is_valid():
-        comparison = title_form.save(commit=False)
-        comparison.owner = request.user
-        comparison.save()
-        ComparisonItem.objects.bulk_create([
-            ComparisonItem(
-                comparison=comparison, product=product, position=position,
-                name=product.name, category=product.category, product_type=product.product_type,
-                price=product.price, specifications=product.specifications,
-            )
-            for position, product in enumerate(selected, start=1)
-        ])
-        messages.success(request, "Comparison saved.")
+        comparison, created = request.user.comparisons.get_or_create(
+            submission_id=title_form.cleaned_data["submission_key"],
+            defaults={"title": title_form.cleaned_data["title"]},
+        )
+        if created:
+            ComparisonItem.objects.bulk_create([
+                ComparisonItem(
+                    comparison=comparison, product=product, position=position,
+                    name=product.name, category=product.category, product_type=product.product_type,
+                    price=product.price, specifications=product.specifications,
+                )
+                for position, product in enumerate(selected, start=1)
+            ])
+        messages.success(request, "Comparison saved." if created else "This comparison was already saved.")
         return redirect("products:comparison_detail", pk=comparison.pk)
 
     return render(request, "products/comparison_detail.html", {

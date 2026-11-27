@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django import forms
 
 from .models import Product
@@ -38,3 +40,10 @@ class ProductForm(forms.ModelForm):
             seen.add(label.casefold())
             specifications[label] = value
         return specifications
+
+
+class ProductCreateForm(ProductForm):
+    submission_key = forms.UUIDField(initial=uuid4, widget=forms.HiddenInput, error_messages={
+        "required": "Reopen the Add product page before submitting again.",
+        "invalid": "Reopen the Add product page before submitting again.",
+    })
